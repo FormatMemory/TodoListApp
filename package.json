@@ -1,0 +1,27 @@
+{
+  "name": "nodejs_todo_list",
+  "version": "1.0.0",
+  "description": "A to-do list app writen in nodejs(backend)， reactjs(frontend), mongoDB(database)",
+  "main": "index.js",
+  "scripts": {
+    "test": "testcmd"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/FormatMemory/TodoListApp.git"
+  },
+  "keywords": [
+    "nodejs",
+    "reactjs",
+    "MongoDB"
+  ],
+  "author": "Yusheng Ding",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FormatMemory/TodoListApp/issues"
+  },
+  "homepage": "https://github.com/FormatMemory/TodoListApp#readme",
+  "dependencies": {
+    "mongodb": "^2.2.5"
+  }
+}
