@@ -2,7 +2,7 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var TodoSchema = new Schema({
+exports.Schema = new Schema({
     //_id: ObjectId,
     content: {
         type:String,
@@ -12,7 +12,7 @@ var TodoSchema = new Schema({
       type: Boolean,
       default: false
     },
-    creat_date:{
+    lastmotified_date:{
         type: Date,
         default: Date.now
     },
@@ -21,4 +21,4 @@ var TodoSchema = new Schema({
     }
 });
 
-mongoose.model('Todo', TodoSchema);
+mongoose.model('Todo', exports.Schema);

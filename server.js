@@ -3,7 +3,7 @@
 //Connect to our database
 //Create our Mongoose models
 //Define routes for our RESTful API
-//Define routes for our frontend Angular application
+//Define routes for our frontend frontend application
 //Set the app to listen on a port so we can view it in our browseor
 
 
@@ -15,13 +15,13 @@ var morgan   = require('morgan');             // log requests to the console (ex
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
 var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
 var fs = require('fs'); //file system library, for loading files(models)
-//Todo = require('models/Todo');
+var Todo = require('./models/Todo');
 //var Todo = mongoose.model;
 
 var app      = express();
 // configuration =================
 
-mongoose.connect('mongodb://localhost:27017/nTodoListDB');  //connect mongoose to MongoDB
+var conn = mongoose.createConnection('mongodb://localhost:27017/nTodoListDB');  //connect mongoose to MongoDB
 app.use(express.static(__dirname + '/public_front'));                 // set the static files location /public/img will be /img for users
 app.use(morgan('dev'));                                         // log every request to the console
 app.use(bodyParser.urlencoded({'extended':'true'}));            // parse application/x-www-form-urlencoded
@@ -47,29 +47,29 @@ fs.readdirSync(__dirname + '/models').forEach(function(filename){
     app.get('/api/todos', function(req, res) {
 
         // use mongoose to get all todos in the database
-        mongoose.model('Todo').find(function(err, todos) {
+        conn.model('Todo', Todo.Schema).find( function(err, todos) {
 
             // if there is an error retrieving, send the error. nothing after res.send(err) will execute
             if (err)
                 res.send(err)
-
             res.json(todos); // return all todos in JSON format
         });
     });
 
     // create todo and send back all todos after creation
     app.post('/api/todos', function(req, res) {
-
-        // create a todo, information comes from AJAX request from Angular
-        mongoose.model('Todo').create({
-            content : req.body.text,
-            acheved : false
+        // create a todo, information comes from AJAX request from frontend
+        conn.model('Todo').create({
+            content : req.body.content,
+            done : req.body.done,
+            allert_date: req.body.allert_date,
+            lastmotified_date: req.body.lastmotified_date
         }, function(err, todo) {
             if (err)
                 res.send(err);
 
             // get and return all the todos after you create another
-        mongoose.model('Todo').find(function(err, todos) {
+        conn.model('Todo').find(function(err, todos) {
                 if (err)
                     res.send(err)
                 res.json(todos);
@@ -78,16 +78,40 @@ fs.readdirSync(__dirname + '/models').forEach(function(filename){
 
     });
 
+    app.post('/api/todos/:todo_id', function(req, res){
+      // update a todo, information comes from AJAX request from frontend
+      conn.model('Todo').update(
+        {
+          _id : req.params.todo_id
+        },
+        {
+          content : req.body.content,
+          done : req.body.done,
+          allert_date: req.body.allert_date,
+          lastmotified_date: req.body.lastmotified_date
+      }, function(err, todo) {
+          if (err)
+              res.send(err);
+
+          // get and return all the todos after you create another
+      conn.model('Todo').find(function(err, todos) {
+              if (err)
+                  res.send(err)
+              res.json(todos);
+          });
+      });
+    });
+
     // delete a todo
     app.delete('/api/todos/:todo_id', function(req, res) {
-        mongoose.model('Todo').remove({
+        conn.model('Todo').remove({
             _id : req.params.todo_id
         }, function(err, todo) {
             if (err)
                 res.send(err);
 
             // get and return all the todos after you create another
-        mongoose.model('Todo').find(function(err, todos) {
+        conn.model('Todo').find(function(err, todos) {
                 if (err)
                     res.send(err)
                 res.json(todos);
