@@ -56,6 +56,22 @@ fs.readdirSync(__dirname + '/models').forEach(function(filename){
         });
     });
 
+    //get one todo via it's id
+    app.get('/api/todos/:todo_id', function(req,res){
+        //use mongoose to get one todo via it's id
+        conn.model('Todo', Todo.Schema).findOne(
+              {
+                _id : req.params.todo_id
+              },//filter
+              {}//return all except NULL
+        ,function(err, todo) {
+            if (err)
+                res.send(err);
+            res.json(todo);
+            // get and return all the todos after you create another
+        });
+    });
+
     // create todo and send back all todos after creation
     app.post('/api/todos', function(req, res) {
         // create a todo, information comes from AJAX request from frontend
@@ -78,9 +94,10 @@ fs.readdirSync(__dirname + '/models').forEach(function(filename){
 
     });
 
+    // update todo and send back all todos after creation
     app.post('/api/todos/:todo_id', function(req, res){
       // update a todo, information comes from AJAX request from frontend
-      conn.model('Todo').update(
+      conn.model('Todo').findOneAndUpdate(
         {
           _id : req.params.todo_id
         },
@@ -94,7 +111,7 @@ fs.readdirSync(__dirname + '/models').forEach(function(filename){
               res.send(err);
 
           // get and return all the todos after you create another
-      conn.model('Todo').find(function(err, todos) {
+          conn.model('Todo').find(function(err, todos) {
               if (err)
                   res.send(err)
               res.json(todos);
@@ -111,7 +128,7 @@ fs.readdirSync(__dirname + '/models').forEach(function(filename){
                 res.send(err);
 
             // get and return all the todos after you create another
-        conn.model('Todo').find(function(err, todos) {
+            conn.model('Todo').find(function(err, todos) {
                 if (err)
                     res.send(err)
                 res.json(todos);
