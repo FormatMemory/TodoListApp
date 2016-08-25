@@ -30,8 +30,8 @@ app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse applica
 app.use(methodOverride());
 
 // listen (start app with node server.js) ======================================
-app.listen(8080);
-console.log("App listening on port 8080");
+app.listen(3030);
+console.log("App listening on port 3030");
 
 //loading all files in models directory
 fs.readdirSync(__dirname + '/models').forEach(function(filename){
@@ -50,9 +50,14 @@ fs.readdirSync(__dirname + '/models').forEach(function(filename){
         conn.model('Todo', Todo.Schema).find( function(err, todos) {
 
             // if there is an error retrieving, send the error. nothing after res.send(err) will execute
-            if (err)
-                res.send(err)
-            res.json(todos); // return all todos in JSON format
+            if (err){
+                res.send("Cannot find any records...");
+                console.log("find: Cannot find any records...");
+                //console.log(err);
+            }
+            else {
+                res.json(todos);// return all todos in JSON format
+            }
         });
     });
 
@@ -64,15 +69,23 @@ fs.readdirSync(__dirname + '/models').forEach(function(filename){
                 _id : req.params.todo_id
               },//filter
               {}//return all except NULL
-        ,function(err, todo) {
-            if (err)
-                res.send(err);
-            res.json(todo);
-            // get and return all the todos after you create another
+        ,function(err, todos) {
+          if (err){
+              res.send("Do not have this record...");
+              console.log("findOne: Do not have this record...");
+              //console.log(err);
+          }
+          else {
+              if(todos == null){
+                res.send("Do not have this record...");
+              }else{
+                res.json(todos);// return all todos in JSON format
+              }
+          }
         });
     });
 
-    // create todo and send back all todos after creation
+    // create a todo and send back all todos after creation
     app.post('/api/todos', function(req, res) {
         // create a todo, information comes from AJAX request from frontend
         conn.model('Todo').create({
@@ -80,16 +93,26 @@ fs.readdirSync(__dirname + '/models').forEach(function(filename){
             done : req.body.done,
             allert_date: req.body.allert_date,
             lastmotified_date: req.body.lastmotified_date
-        }, function(err, todo) {
-            if (err)
-                res.send(err);
-
-            // get and return all the todos after you create another
-        conn.model('Todo').find(function(err, todos) {
-                if (err)
-                    res.send(err)
-                res.json(todos);
-            });
+        }, function(err, todos) {
+            if (err){
+                console.log(err);
+                res.send("create:Error Occurs When Creating a new record...");
+            }
+            else {
+                //res.json(todos);// return all todos in JSON format
+                // get and return all the todos after you create another
+                conn.model('Todo').find(function(err, todos) {
+                    // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+                    if (err){
+                        res.send("Cannot find any records...");
+                        console.log(err);
+                    }
+                    else {
+                        console.log("post.create: A todo has been added...");
+                        res.json(todos);// return all todos in JSON format
+                    }
+                  });
+          }//else
         });
 
     });
@@ -106,16 +129,30 @@ fs.readdirSync(__dirname + '/models').forEach(function(filename){
           done : req.body.done,
           allert_date: req.body.allert_date,
           lastmotified_date: req.body.lastmotified_date
-      }, function(err, todo) {
-          if (err)
-              res.send(err);
-
-          // get and return all the todos after you create another
-          conn.model('Todo').find(function(err, todos) {
-              if (err)
-                  res.send(err)
-              res.json(todos);
-          });
+      }, function(err, todos) {
+          if (err){
+            res.send("Cannot update this record...");
+            console.log("findOneAndUpdate: Cannot update this record...");
+            console.log(err);
+          }else{
+            console.log("Post.findOneAndUpdate: Updated" + req.params.todo_id + " record...");
+            // get and return all the todos after you create another
+            conn.model('Todo').find(function(err, todos) {
+                // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+                if (err){
+                    res.send("findOneAndUpdate.find: Error Occurs When Trying to find records...");
+                    console.log("findOneAndUpdate.find: Error Occurs When Trying to find records...")
+                    console.log(err);
+                }
+                else {
+                    if(todos == null){
+                      console.log("findOneAndUpdate.find: Empty return When Trying to find records...")
+                      res.send("Cannot find any records...");
+                    }
+                    res.json(todos);// return all todos in JSON format
+                }
+            });
+          }
       });
     });
 
@@ -123,15 +160,23 @@ fs.readdirSync(__dirname + '/models').forEach(function(filename){
     app.delete('/api/todos/:todo_id', function(req, res) {
         conn.model('Todo').remove({
             _id : req.params.todo_id
-        }, function(err, todo) {
-            if (err)
-                res.send(err);
-
+        }, function(err, todos) {
+            if (err){
+              console.log("Delete: Error Occurs When Deleting a Record...");
+              console.log(err);
+              res.send("Error Occurs When Deleting a Record...");
+            }
             // get and return all the todos after you create another
             conn.model('Todo').find(function(err, todos) {
-                if (err)
-                    res.send(err)
-                res.json(todos);
+                if (err){
+                  console.log("Delete.find: Error Occurs When Deleting then Finding a Record...");
+                  console.log(err);
+                  res.send("Error Occurs When Trying To Find Records...");
+                }
+                else {
+                    console.log("delete: A todo has been deleted...");
+                    res.json(todos);// return all todos in JSON format
+                }
             });
         });
     });
