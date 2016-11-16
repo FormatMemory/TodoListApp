@@ -12,7 +12,7 @@ You can access the **API backend server** through this [link](http://www.formatm
 For example: Get all todos:
 [Get Todo](http://www.formatmemory.me/subApp/todolist/api/todos).
 Access a certain todo:
-[link](http://www.formatmemory.me/subApp/todolist/api/) + `/api/todos/:todo_id`
+[link](http://www.formatmemory.me/subApp/todolist/api/) + `/todo_id`
 etc.
 
 
